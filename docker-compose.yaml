@@ -1,0 +1,22 @@
+services:
+# PostgreSQL database
+  db:
+    image: postgres:latest
+    container_name: fin-ledger-db
+    restart: always
+    ports:
+      - "5432:5432" # Default PostgreSQL port
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U fin-ledger -d fin-ledger" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: fin-ledger
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fin-ledger
+    volumes:
+      - pgdata:/var/lib/postgresql # Docker managed volume
+
+volumes:
+  pgdata:
