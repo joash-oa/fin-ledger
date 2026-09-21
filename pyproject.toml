@@ -4,13 +4,13 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.20.0",
-    "asyncio>=4.0.0",
     "asyncpg>=0.31.0",
+    "email-validator>=2.3.0",
     "fastapi>=0.141.1",
     "greenlet>=3.5.6",
-    "psycopg[binary]>=3.3.6",
     "pydantic>=2.13.5",
     "pydantic-settings>=2.15.0",
+    "python-multipart>=0.0.32",
     "sqlalchemy>=2.0.54",
     "uuid7>=0.1.0",
     "uvicorn>=0.53.0",
@@ -20,4 +20,5 @@ dependencies = [
 dev = [
     "pytest>=9.1.1",
     "ruff>=0.16.8",
+    "pre-commit>=3.7.0",
 ]
