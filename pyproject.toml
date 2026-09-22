@@ -14,7 +14,6 @@ dependencies = [
     "sqlalchemy>=2.0.54",
     "uuid7>=0.1.0",
     "uvicorn>=0.53.0",
-    "httpx>=0.28.1",
 ]
 
 [dependency-groups]
@@ -24,6 +23,7 @@ dev = [
     "pre-commit>=3.7.0",
     "pytest-asyncio>=1.4.0",
     "pytest-env>=1.7.1",
+    "httpx>=0.28.1",
 ]
 
 [tool.pytest.ini_options]
