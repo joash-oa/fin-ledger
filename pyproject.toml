@@ -14,6 +14,7 @@ dependencies = [
     "sqlalchemy>=2.0.54",
     "uuid7>=0.1.0",
     "uvicorn>=0.53.0",
+    "httpx>=0.28.1",
 ]
 
 [dependency-groups]
@@ -21,4 +22,17 @@ dev = [
     "pytest>=9.1.1",
     "ruff>=0.16.8",
     "pre-commit>=3.7.0",
+    "pytest-asyncio>=1.4.0",
+    "pytest-env>=1.7.1",
 ]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+
+[tool.pytest_env]
+DATABASE_URL="postgresql+asyncpg://test:test@localhost:1/none"
+DEBUG="True"
+COOKIE_SECURE="True"
+SESSION_IDLE_TIMEOUT_SECONDS=1800
+SESSION_MAX_LIFETIME_SECONDS=86400

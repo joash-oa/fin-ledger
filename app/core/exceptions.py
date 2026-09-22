@@ -1,0 +1,2 @@
+class DuplicateEmailException(Exception):
+    pass
