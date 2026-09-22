@@ -6,5 +6,5 @@ class InvalidCredentialsException(Exception):
     pass
 
 
-class UserValidationException(Exception):
+class InvalidSessionException(Exception):
     pass

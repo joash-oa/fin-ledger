@@ -4,7 +4,7 @@ from fastapi import Cookie, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db_session
-from app.core.exceptions import UserValidationException
+from app.core.exceptions import InvalidSessionException
 from app.daos.auth_session_dao import AuthSessionDao
 from app.daos.user_dao import UserDao
 from app.services.auth_service import AuthenticatedUser, AuthService
@@ -28,5 +28,5 @@ async def get_current_user(
     try:
         user = await auth_service.authenticate(session_token)
         return user
-    except UserValidationException:
+    except InvalidSessionException:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED) from None
