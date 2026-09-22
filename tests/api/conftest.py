@@ -13,15 +13,16 @@ from tests.constants import TEST_MAX_LIFETIME_SECONDS, TEST_SESSION_TOKEN, TEST_
 @pytest.fixture
 def auth_service():
     mock_auth_service = AsyncMock(spec=AuthService)
-    mock_auth_service.register = AsyncMock(
-        return_value=AuthResult(
-            user_id=TEST_USER_ID,
-            session_token=SessionToken(
-                value=TEST_SESSION_TOKEN,
-                max_age=TEST_MAX_LIFETIME_SECONDS,
-            ),
-        )
+    mock_auth_result = AuthResult(
+        user_id=TEST_USER_ID,
+        session_token=SessionToken(
+            value=TEST_SESSION_TOKEN,
+            max_age=TEST_MAX_LIFETIME_SECONDS,
+        ),
     )
+    mock_auth_service.register = AsyncMock(return_value=mock_auth_result)
+    mock_auth_service.login = AsyncMock(return_value=mock_auth_result)
+    mock_auth_service.logout = AsyncMock()
 
     return mock_auth_service
 

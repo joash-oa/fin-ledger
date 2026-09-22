@@ -6,6 +6,14 @@ from app.daos.user_dao import UserDao
 
 
 @dataclass
+class AuthenticatedUser:
+    user_id: UUID
+    first_name: str
+    last_name: str
+    email: str
+
+
+@dataclass
 class SessionToken:
     value: str
     max_age: int
@@ -25,3 +33,9 @@ class AuthService:
     async def register(
         self, first_name: str, last_name: str, email: str, password: str
     ) -> AuthResult: ...
+
+    async def login(self, email: str, password: str) -> AuthResult: ...
+
+    async def logout(self, session_token: str) -> None: ...
+
+    async def authenticate(self, token: str) -> AuthenticatedUser: ...
