@@ -47,7 +47,7 @@ async def test_register_success(auth_service, auth_session_dao, user_dao):
     create_auth_session_args = auth_session_dao.create_auth_session.call_args.kwargs
     create_user_args = user_dao.create_user.call_args.kwargs
 
-    user_dao.get_user_by_email.assert_awaited_once_with(email=TEST_EMAIL_ADDRESS)
+    user_dao.get_user_by_email.assert_awaited_once_with(TEST_EMAIL_ADDRESS)
     user_dao.create_user.assert_awaited_once()
     assert verify_password(TEST_PASSWORD, create_user_args["password_hash"])
 
@@ -68,7 +68,7 @@ async def test_register_with_duplicate_email(auth_service, auth_session_dao, use
     with pytest.raises(DuplicateEmailException):
         await auth_service.register(**register_data)
 
-    user_dao.get_user_by_email.assert_awaited_once_with(email=TEST_EMAIL_ADDRESS)
+    user_dao.get_user_by_email.assert_awaited_once_with(TEST_EMAIL_ADDRESS)
     user_dao.create_user.assert_not_awaited()
 
     auth_session_dao.create_auth_session.assert_not_awaited()
@@ -82,7 +82,7 @@ async def test_login_success(auth_service, auth_session_dao, user_dao):
     session_token = auth_result.session_token
     create_auth_session_args = auth_session_dao.create_auth_session.call_args.kwargs
 
-    user_dao.get_user_by_email.assert_awaited_once_with(email=TEST_EMAIL_ADDRESS)
+    user_dao.get_user_by_email.assert_awaited_once_with(TEST_EMAIL_ADDRESS)
     assert (
         get_token_hash(session_token.value)
         == create_auth_session_args["session_token_hash"]
@@ -96,9 +96,9 @@ async def test_login_with_wrong_password(auth_service, auth_session_dao, user_da
     user_dao.get_user_by_email.return_value = get_mock_user()
 
     with pytest.raises(InvalidCredentialsException):
-        await auth_service.login(email=TEST_PASSWORD_HASH, password="wrong_password")
+        await auth_service.login(email=TEST_EMAIL_ADDRESS, password="wrong_password")
 
-    user_dao.get_user_by_email.assert_awaited_once_with(email=TEST_EMAIL_ADDRESS)
+    user_dao.get_user_by_email.assert_awaited_once_with(TEST_EMAIL_ADDRESS)
     auth_session_dao.create_auth_session.assert_not_awaited()
 
 
@@ -113,7 +113,7 @@ async def test_login_with_wrong_email(
         await auth_service.login(email="wrong-email", password=TEST_PASSWORD)
 
     spy.assert_called_once_with(TEST_PASSWORD, DUMMY_PASSWORD_HASH)
-    user_dao.get_user_by_email.assert_awaited_once_with(email="wrong-email")
+    user_dao.get_user_by_email.assert_awaited_once_with("wrong-email")
     auth_session_dao.create_auth_session.assert_not_awaited()
 
 
@@ -122,7 +122,7 @@ async def test_authenticate_success(auth_service, auth_session_dao):
 
     assert authenticated_user.user_id == TEST_USER_ID
     auth_session_dao.get_auth_session_by_hash.assert_awaited_once_with(
-        session_token_hash=get_token_hash(TEST_SESSION_TOKEN)
+        get_token_hash(TEST_SESSION_TOKEN)
     )
     auth_session_dao.update_last_activity.assert_awaited_once_with(
         session_token_hash=get_token_hash(TEST_SESSION_TOKEN), timestamp=TEST_NOW
@@ -137,7 +137,7 @@ async def test_authenticate_with_unknown_token(auth_service, auth_session_dao):
         await auth_service.authenticate(unknown_token)
 
     auth_session_dao.get_auth_session_by_hash.assert_awaited_once_with(
-        session_token_hash=get_token_hash(unknown_token)
+        get_token_hash(unknown_token)
     )
     auth_session_dao.update_last_activity.assert_not_awaited()
 
@@ -152,7 +152,7 @@ async def test_authenticate_with_idle_expired_token(auth_service, auth_session_d
         await auth_service.authenticate(TEST_SESSION_TOKEN)
 
     auth_session_dao.get_auth_session_by_hash.assert_awaited_once_with(
-        session_token_hash=get_token_hash(TEST_SESSION_TOKEN)
+        get_token_hash(TEST_SESSION_TOKEN)
     )
     auth_session_dao.update_last_activity.assert_not_awaited()
 
@@ -169,7 +169,7 @@ async def test_authenticate_with_idle_expired_at_boundary(
         await auth_service.authenticate(TEST_SESSION_TOKEN)
 
     auth_session_dao.get_auth_session_by_hash.assert_awaited_once_with(
-        session_token_hash=get_token_hash(TEST_SESSION_TOKEN)
+        get_token_hash(TEST_SESSION_TOKEN)
     )
     auth_session_dao.update_last_activity.assert_not_awaited()
 
@@ -184,7 +184,7 @@ async def test_authenticate_with_absolute_expired_token(auth_service, auth_sessi
         await auth_service.authenticate(TEST_SESSION_TOKEN)
 
     auth_session_dao.get_auth_session_by_hash.assert_awaited_once_with(
-        session_token_hash=get_token_hash(TEST_SESSION_TOKEN)
+        get_token_hash(TEST_SESSION_TOKEN)
     )
     auth_session_dao.update_last_activity.assert_not_awaited()
 
@@ -201,7 +201,7 @@ async def test_authenticate_with_absolute_expired_at_boundary(
         await auth_service.authenticate(TEST_SESSION_TOKEN)
 
     auth_session_dao.get_auth_session_by_hash.assert_awaited_once_with(
-        session_token_hash=get_token_hash(TEST_SESSION_TOKEN)
+        get_token_hash(TEST_SESSION_TOKEN)
     )
     auth_session_dao.update_last_activity.assert_not_awaited()
 
@@ -210,5 +210,5 @@ async def test_logout(auth_service, auth_session_dao):
     await auth_service.logout(TEST_SESSION_TOKEN)
 
     auth_session_dao.delete_auth_session.assert_awaited_once_with(
-        session_token_hash=get_token_hash(TEST_SESSION_TOKEN)
+        get_token_hash(TEST_SESSION_TOKEN)
     )
