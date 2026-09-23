@@ -2,17 +2,13 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.core.utils import get_password_hash
 from app.daos.auth_session_dao import AuthSessionDao
 from app.daos.user_dao import UserDao
 from tests.constants import (
     TEST_CREATED_AT,
     TEST_LAST_ACTIVITY_AT,
-    TEST_PASSWORD,
 )
 from tests.factories import get_mock_user, make_auth_session
-
-TEST_PASSWORD_HASH = get_password_hash(TEST_PASSWORD)
 
 
 @pytest.fixture

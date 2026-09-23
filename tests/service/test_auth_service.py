@@ -9,7 +9,7 @@ from app.core.exceptions import (
     InvalidCredentialsException,
     InvalidSessionException,
 )
-from app.core.utils import get_password_hash, get_token_hash, verify_password
+from app.core.utils import get_token_hash, verify_password
 from app.services.auth_service import DUMMY_PASSWORD_HASH, AuthService
 from tests.constants import (
     TEST_CREATED_AT,
@@ -25,8 +25,6 @@ from tests.factories import (
     get_mock_user,
     make_auth_session,
 )
-
-TEST_PASSWORD_HASH = get_password_hash(TEST_PASSWORD)
 
 
 @pytest.fixture
