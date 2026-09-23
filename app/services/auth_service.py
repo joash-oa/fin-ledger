@@ -84,7 +84,9 @@ class AuthService:
     async def login(self, email: str, password: str) -> AuthResult:
         user = await self.user_dao.get_user_by_email(email)
         if not user:
-            verify_password(password, DUMMY_PASSWORD_HASH)
+            verify_password(
+                password, DUMMY_PASSWORD_HASH
+            )  # run verify against dummy password so timing is the same
             raise InvalidCredentialsException
 
         password_match = verify_password(password, user.password_hash)
@@ -102,16 +104,17 @@ class AuthService:
         if not auth_session:
             raise InvalidSessionException
 
+        now = self.now()
         idle_timeout_seconds = timedelta(seconds=settings.session_idle_timeout_seconds)
-        if (self.now() - auth_session.last_activity_at) >= idle_timeout_seconds:
+        if (now - auth_session.last_activity_at) >= idle_timeout_seconds:
             raise InvalidSessionException
 
         max_lifetime_seconds = timedelta(seconds=settings.session_max_lifetime_seconds)
-        if (self.now() - auth_session.created_at) >= max_lifetime_seconds:
+        if (now - auth_session.created_at) >= max_lifetime_seconds:
             raise InvalidSessionException
 
         await self.auth_session_dao.update_last_activity(
-            session_token_hash=session_token_hash, timestamp=self.now()
+            session_token_hash=session_token_hash, timestamp=now
         )
 
         return AuthenticatedUser(user_id=auth_session.user_id)

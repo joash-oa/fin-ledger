@@ -5,17 +5,12 @@ import pytest
 from app.core.utils import get_password_hash
 from app.daos.auth_session_dao import AuthSessionDao
 from app.daos.user_dao import UserDao
-from app.models import User
 from tests.constants import (
     TEST_CREATED_AT,
-    TEST_EMAIL_ADDRESS,
-    TEST_FIRST_NAME,
     TEST_LAST_ACTIVITY_AT,
-    TEST_LAST_NAME,
     TEST_PASSWORD,
-    TEST_USER_ID,
 )
-from tests.factories import make_auth_session
+from tests.factories import get_mock_user, make_auth_session
 
 TEST_PASSWORD_HASH = get_password_hash(TEST_PASSWORD)
 
@@ -33,12 +28,5 @@ def auth_session_dao():
 @pytest.fixture
 def user_dao():
     mock_user_dao = AsyncMock(spec=UserDao)
-    mock_user = User(
-        id=TEST_USER_ID,
-        first_name=TEST_FIRST_NAME,
-        last_name=TEST_LAST_NAME,
-        email=TEST_EMAIL_ADDRESS,
-        password_hash=TEST_PASSWORD_HASH,
-    )
-    mock_user_dao.create_user = AsyncMock(return_value=mock_user)
+    mock_user_dao.create_user.return_value = get_mock_user()
     return mock_user_dao

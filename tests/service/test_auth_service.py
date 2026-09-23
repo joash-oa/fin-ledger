@@ -64,7 +64,6 @@ async def test_register_with_duplicate_email(auth_service, auth_session_dao, use
     register_data = get_auth_service_register_data()
     user_dao.get_user_by_email.return_value = get_mock_user()
 
-    auth_service = AuthService(auth_session_dao=auth_session_dao, user_dao=user_dao)
     with pytest.raises(DuplicateEmailException):
         await auth_service.register(**register_data)
 
