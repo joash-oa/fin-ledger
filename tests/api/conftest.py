@@ -7,7 +7,7 @@ from httpx import ASGITransport, AsyncClient
 from app.api.deps import get_auth_service
 from app.main import app
 from app.services.auth_service import AuthResult, AuthService, SessionToken
-from tests.constants import TEST_MAX_LIFETIME_SECONDS, TEST_SESSION_TOKEN, TEST_USER_ID
+from tests.constants import TEST_MAX_COOKIE_AGE, TEST_SESSION_TOKEN, TEST_USER_ID
 
 
 @pytest.fixture
@@ -17,12 +17,12 @@ def auth_service():
         user_id=TEST_USER_ID,
         session_token=SessionToken(
             value=TEST_SESSION_TOKEN,
-            max_age=TEST_MAX_LIFETIME_SECONDS,
+            max_age=TEST_MAX_COOKIE_AGE,
         ),
     )
-    mock_auth_service.register = AsyncMock(return_value=mock_auth_result)
-    mock_auth_service.login = AsyncMock(return_value=mock_auth_result)
-    mock_auth_service.logout = AsyncMock()
+    mock_auth_service.register.return_value = mock_auth_result
+    mock_auth_service.login.return_value = mock_auth_result
+    mock_auth_service.logout.return_value = None
 
     return mock_auth_service
 
