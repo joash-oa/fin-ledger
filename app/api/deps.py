@@ -9,9 +9,11 @@ from app.daos.auth_session_dao import AuthSessionDao
 from app.daos.user_dao import UserDao
 from app.services.auth_service import AuthenticatedUser, AuthService
 
+DBSession = Annotated[AsyncSession, Depends(get_db_session, scope="function")]
+
 
 def get_auth_service(
-    db_session: Annotated[AsyncSession, Depends(get_db_session)],
+    db_session: DBSession,
 ) -> AuthService:
     user_dao = UserDao(db_session)
     auth_session_dao = AuthSessionDao(db_session)

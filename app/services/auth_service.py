@@ -51,7 +51,7 @@ class AuthService:
         self.auth_session_dao = auth_session_dao
         self.now = now
 
-    async def create_session_token(self, user_id: UUID) -> SessionToken:
+    async def _create_session_token(self, user_id: UUID) -> SessionToken:
         session_token = secrets.token_urlsafe(32)
         session_token_hash = get_token_hash(session_token)
         await self.auth_session_dao.create_auth_session(
@@ -78,7 +78,7 @@ class AuthService:
             password_hash=password_hash,
         )
 
-        session_token = await self.create_session_token(user.id)
+        session_token = await self._create_session_token(user.id)
         return AuthResult(user_id=user.id, session_token=session_token)
 
     async def login(self, email: str, password: str) -> AuthResult:
@@ -93,7 +93,7 @@ class AuthService:
         if not password_match:
             raise InvalidCredentialsException
 
-        session_token = await self.create_session_token(user.id)
+        session_token = await self._create_session_token(user.id)
         return AuthResult(user_id=user.id, session_token=session_token)
 
     async def authenticate(self, session_token: str) -> AuthenticatedUser:
