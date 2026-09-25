@@ -18,14 +18,14 @@ async def test_create_user(db_session):
     user = await user_dao.create_user(
         first_name=TEST_FIRST_NAME,
         last_name=TEST_LAST_NAME,
-        email=TEST_LAST_NAME,
+        email=TEST_EMAIL_ADDRESS,
         password_hash=TEST_PASSWORD_HASH,
     )
 
     assert isinstance(user, User)
     assert user.first_name == TEST_FIRST_NAME
     assert user.last_name == TEST_LAST_NAME
-    assert user.email == TEST_LAST_NAME
+    assert user.email == TEST_EMAIL_ADDRESS
     assert user.password_hash == TEST_PASSWORD_HASH
     assert user.created_at.tzinfo is not None
 

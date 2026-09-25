@@ -1,7 +1,7 @@
 services:
 # PostgreSQL database
   db:
-    image: postgres:latest
+    image: postgres:18
     container_name: fin-ledger-db
     restart: always
     ports:

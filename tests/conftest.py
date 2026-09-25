@@ -9,7 +9,7 @@ from app.core.db import Base
 
 @pytest.fixture(scope="session")
 def postgres_container():
-    with PostgresContainer(image="postgres:latest", driver="asyncpg") as pg:
+    with PostgresContainer(image="postgres:18", driver="asyncpg") as pg:
         yield pg
 
 
