@@ -8,13 +8,16 @@ from app.core.exceptions import (
     DuplicateEmailException,
     InvalidCredentialsException,
     InvalidSessionException,
+    UserNotFoundException,
 )
 from app.core.utils import get_token_hash, verify_password
 from app.services.auth_service import DUMMY_PASSWORD_HASH, AuthService
 from tests.constants import (
     TEST_CREATED_AT,
     TEST_EMAIL_ADDRESS,
+    TEST_FIRST_NAME,
     TEST_LAST_ACTIVITY_AT,
+    TEST_LAST_NAME,
     TEST_NOW,
     TEST_PASSWORD,
     TEST_SESSION_TOKEN,
@@ -209,3 +212,20 @@ async def test_logout(auth_service, auth_session_dao):
     auth_session_dao.delete_auth_session.assert_awaited_once_with(
         get_token_hash(TEST_SESSION_TOKEN)
     )
+
+
+async def test_get_user_by_id(auth_service, user_dao):
+    user = await auth_service.get_user_by_id(TEST_USER_ID)
+
+    user_dao.get_user_by_id.assert_awaited_once_with(TEST_USER_ID)
+    assert user.user_id == TEST_USER_ID
+    assert user.first_name == TEST_FIRST_NAME
+    assert user.last_name == TEST_LAST_NAME
+    assert user.email == TEST_EMAIL_ADDRESS
+
+
+async def test_get_user_by_id_with_unknown_id(auth_service, user_dao):
+    user_dao.get_user_by_id.return_value = None
+
+    with pytest.raises(UserNotFoundException):
+        await auth_service.get_user_by_id(TEST_USER_ID)

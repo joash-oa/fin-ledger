@@ -25,4 +25,5 @@ def auth_session_dao():
 def user_dao():
     mock_user_dao = AsyncMock(spec=UserDao)
     mock_user_dao.create_user.return_value = get_mock_user()
+    mock_user_dao.get_user_by_id.return_value = get_mock_user()
     return mock_user_dao
