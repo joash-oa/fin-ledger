@@ -8,3 +8,7 @@ class InvalidCredentialsException(Exception):
 
 class InvalidSessionException(Exception):
     pass
+
+
+class UserNotFoundException(Exception):
+    pass

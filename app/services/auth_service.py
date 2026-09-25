@@ -9,6 +9,7 @@ from app.core.exceptions import (
     DuplicateEmailException,
     InvalidCredentialsException,
     InvalidSessionException,
+    UserNotFoundException,
 )
 from app.core.utils import (
     get_password_hash,
@@ -22,6 +23,14 @@ from app.daos.user_dao import UserDao
 @dataclass
 class AuthenticatedUser:
     user_id: UUID
+
+
+@dataclass
+class UserInfo:
+    user_id: UUID
+    first_name: str
+    last_name: str
+    email: str
 
 
 @dataclass
@@ -122,3 +131,15 @@ class AuthService:
     async def logout(self, session_token: str) -> None:
         session_token_hash = get_token_hash(session_token)
         await self.auth_session_dao.delete_auth_session(session_token_hash)
+
+    async def get_user_by_id(self, user_id: UUID) -> UserInfo:
+        user = await self.user_dao.get_user_by_id(user_id)
+        if not user:
+            raise UserNotFoundException
+
+        return UserInfo(
+            user_id=user.id,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            email=user.email,
+        )

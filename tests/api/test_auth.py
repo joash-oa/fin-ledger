@@ -2,8 +2,18 @@ import pytest
 from fastapi import status
 from httpx import Response
 
-from app.core.exceptions import DuplicateEmailException, InvalidCredentialsException
-from tests.constants import TEST_SESSION_TOKEN, TEST_USER_ID
+from app.core.exceptions import (
+    DuplicateEmailException,
+    InvalidCredentialsException,
+    UserNotFoundException,
+)
+from tests.constants import (
+    TEST_EMAIL_ADDRESS,
+    TEST_FIRST_NAME,
+    TEST_LAST_NAME,
+    TEST_SESSION_TOKEN,
+    TEST_USER_ID,
+)
 
 
 @pytest.fixture
@@ -136,3 +146,36 @@ async def test_logout_with_no_session_token(client, auth_service):
 
     auth_service.logout.assert_not_awaited()
     assert res.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+async def test_me_success(client, auth_service):
+    client.cookies.set("session_token", TEST_SESSION_TOKEN)
+    res = await client.get("/auth/me")
+    body = res.json()
+
+    auth_service.authenticate.assert_awaited_once_with(TEST_SESSION_TOKEN)
+    auth_service.get_user_by_id.assert_awaited_once_with(TEST_USER_ID)
+    assert res.status_code == status.HTTP_200_OK
+    assert body["user_id"] == str(TEST_USER_ID)
+    assert body["first_name"] == TEST_FIRST_NAME
+    assert body["last_name"] == TEST_LAST_NAME
+    assert body["email"] == TEST_EMAIL_ADDRESS
+
+
+async def test_me_with_no_session_token(client, auth_service):
+    res = await client.get("/auth/me")
+
+    auth_service.authenticate.assert_not_awaited()
+    assert res.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+async def test_me_with_unknown_user(client, auth_service):
+    auth_service.get_user_by_id.side_effect = UserNotFoundException
+    client.cookies.set("session_token", TEST_SESSION_TOKEN)
+
+    res = await client.get("/auth/me")
+
+    auth_service.authenticate.assert_awaited_once_with(TEST_SESSION_TOKEN)
+    auth_service.get_user_by_id.assert_awaited_once_with(TEST_USER_ID)
+
+    assert res.status_code == status.HTTP_404_NOT_FOUND

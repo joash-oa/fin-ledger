@@ -2,16 +2,21 @@ from typing import Annotated
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
 
-from app.api.deps import get_auth_service
+from app.api.deps import get_auth_service, get_current_user
 from app.core.config import get_settings
-from app.core.exceptions import DuplicateEmailException, InvalidCredentialsException
+from app.core.exceptions import (
+    DuplicateEmailException,
+    InvalidCredentialsException,
+    UserNotFoundException,
+)
 from app.schemas.auth import (
     LoginRequest,
     LoginResponse,
+    MeResponse,
     RegisterRequest,
     RegisterResponse,
 )
-from app.services.auth_service import AuthService, SessionToken
+from app.services.auth_service import AuthenticatedUser, AuthService, SessionToken
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 settings = get_settings()
@@ -86,3 +91,15 @@ async def logout(
         secure=settings.cookie_secure,
         samesite="strict",
     )
+
+
+@router.get("/me", response_model=MeResponse, status_code=status.HTTP_200_OK)
+async def me(
+    current_user: Annotated[AuthenticatedUser, Depends(get_current_user)],
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+):
+    try:
+        user = await auth_service.get_user_by_id(current_user.user_id)
+        return MeResponse.model_validate(user, from_attributes=True)
+    except UserNotFoundException:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND) from None
