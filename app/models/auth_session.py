@@ -23,8 +23,14 @@ class AuthSession(Base):
         index=True,
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        eager_default=True,
     )
     last_activity_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        eager_default=True,
     )
