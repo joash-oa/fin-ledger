@@ -59,7 +59,7 @@ async def test_get_user_by_email(db_session, persisted_user):
 async def test_get_user_by_email_with_different_case_email(db_session, persisted_user):
     user_dao = UserDao(db_session)
 
-    user = await user_dao.get_user_by_email(TEST_EMAIL_ADDRESS.capitalize())
+    user = await user_dao.get_user_by_email(TEST_EMAIL_ADDRESS.upper())
 
     assert isinstance(user, User)
     assert user.id == persisted_user.id
