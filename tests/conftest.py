@@ -1,6 +1,6 @@
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine
 from testcontainers.community.postgres import PostgresContainer
 
 import app.models  # noqa: F401
@@ -27,14 +27,3 @@ async def async_engine(db_url):
 
     yield engine
     await engine.dispose()
-
-
-@pytest_asyncio.fixture
-async def db_session(async_engine):
-    async_session_maker = async_sessionmaker(
-        async_engine, expire_on_commit=False, class_=AsyncSession
-    )
-
-    async with async_session_maker() as session:
-        yield session
-        await session.rollback()

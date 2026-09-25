@@ -32,6 +32,9 @@ dev = [
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"
 asyncio_default_test_loop_scope = "session"
+filterwarnings = [
+    "error::RuntimeWarning"
+]
 
 [tool.pytest_env]
 DATABASE_URL="postgresql+asyncpg://test:test@localhost:1/none"

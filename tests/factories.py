@@ -52,3 +52,19 @@ def get_mock_user() -> User:
         password_hash=TEST_PASSWORD_HASH,
         created_at=TEST_NOW,
     )
+
+
+def get_login_payload():
+    return {
+        "email": TEST_EMAIL_ADDRESS,
+        "password": TEST_PASSWORD,
+    }
+
+
+def get_register_payload():
+    return {
+        "first_name": TEST_FIRST_NAME,
+        "last_name": TEST_LAST_NAME,
+        "email": TEST_EMAIL_ADDRESS,
+        "password": TEST_PASSWORD,
+    }

@@ -14,24 +14,7 @@ from tests.constants import (
     TEST_SESSION_TOKEN,
     TEST_USER_ID,
 )
-
-
-@pytest.fixture
-def valid_register_payload():
-    return {
-        "first_name": "test_first",
-        "last_name": "test_last",
-        "email": "test@email.com",
-        "password": "Password123",
-    }
-
-
-@pytest.fixture
-def valid_login_payload():
-    return {
-        "email": "test_email@email.com",
-        "password": "TestPassword456",
-    }
+from tests.factories import get_login_payload, get_register_payload
 
 
 def assert_authenticated_response(res: Response, status_code: int):
@@ -46,19 +29,21 @@ def assert_authenticated_response(res: Response, status_code: int):
     assert "samesite=strict" in header
 
 
-async def test_register(client, auth_service, valid_register_payload):
-    res = await client.post("/auth/register", json=valid_register_payload)
+async def test_register(client, auth_service):
+    payload = get_register_payload()
+    res = await client.post("/auth/register", json=payload)
 
-    auth_service.register.assert_awaited_once_with(**valid_register_payload)
+    auth_service.register.assert_awaited_once_with(**payload)
     assert_authenticated_response(res, status_code=201)
 
 
-async def test_register_duplicate_email(client, auth_service, valid_register_payload):
+async def test_register_duplicate_email(client, auth_service):
+    payload = get_register_payload()
     auth_service.register.side_effect = DuplicateEmailException
-    res = await client.post("/auth/register", json=valid_register_payload)
+    res = await client.post("/auth/register", json=payload)
     body = res.json()
 
-    auth_service.register.assert_awaited_once_with(**valid_register_payload)
+    auth_service.register.assert_awaited_once_with(**payload)
     assert res.status_code == status.HTTP_409_CONFLICT
     assert body["detail"] == "Email already in use"
 
@@ -73,10 +58,11 @@ async def test_register_duplicate_email(client, auth_service, valid_register_pay
     ],
 )
 async def test_register_with_invalid_request_body(
-    client, auth_service, valid_register_payload, bad_field, value
+    client, auth_service, bad_field, value
 ):
-    valid_register_payload[bad_field] = value
-    res = await client.post("/auth/register", json=valid_register_payload)
+    payload = get_register_payload()
+    payload[bad_field] = value
+    res = await client.post("/auth/register", json=payload)
     loc = res.json()["detail"][0]["loc"]
 
     auth_service.register.assert_not_awaited()
@@ -84,28 +70,30 @@ async def test_register_with_invalid_request_body(
     assert bad_field in loc
 
 
-async def test_login(client, auth_service, valid_login_payload):
-    res = await client.post("/auth/login", json=valid_login_payload)
+async def test_login(client, auth_service):
+    payload = get_login_payload()
+    res = await client.post("/auth/login", json=payload)
 
-    auth_service.login.assert_awaited_once_with(**valid_login_payload)
+    auth_service.login.assert_awaited_once_with(**payload)
     assert_authenticated_response(res, status_code=200)
 
 
-async def test_login_with_wrong_credentials_return_same_responses(
-    client, auth_service, valid_login_payload
-):
+async def test_login_with_wrong_credentials_return_same_responses(client, auth_service):
     """Test that /login with both wrong password and email returns same response. Proves mapping NOT response logic"""
+    payload = get_login_payload()
     auth_service.login.side_effect = InvalidCredentialsException
 
     # Make a request with wrong email
-    req_body_wrong_email = valid_login_payload.copy()
+    req_body_wrong_email = payload.copy()
     req_body_wrong_email["email"] = "test-wrong-email@email.com"
+
     res1 = await client.post("/auth/login", json=req_body_wrong_email)
     body1 = res1.json()
 
     # Make a request with wrong password
-    req_body_wrong_password = valid_login_payload.copy()
+    req_body_wrong_password = payload.copy()
     req_body_wrong_password["password"] = "test-wrong-password"
+
     res2 = await client.post("/auth/login", json=req_body_wrong_password)
     body2 = res2.json()
 
@@ -120,9 +108,10 @@ async def test_login_with_wrong_credentials_return_same_responses(
     assert "set-cookie" not in res2.headers
 
 
-async def test_login_with_invalid_email(client, auth_service, valid_login_payload):
-    valid_login_payload["email"] = "not-an-email"
-    res = await client.post("/auth/login", json=valid_login_payload)
+async def test_login_with_invalid_email(client, auth_service):
+    payload = get_login_payload()
+    payload["email"] = "not-an-email"
+    res = await client.post("/auth/login", json=payload)
     loc = res.json()["detail"][0]["loc"]
 
     auth_service.login.assert_not_awaited()

@@ -1,4 +1,5 @@
 import pytest_asyncio
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.models.user import User
 from tests.constants import (
@@ -25,3 +26,14 @@ async def persisted_user(db_session):
     await db_session.flush()
 
     return test_user
+
+
+@pytest_asyncio.fixture
+async def db_session(async_engine):
+    async_session_maker = async_sessionmaker(
+        async_engine, expire_on_commit=False, class_=AsyncSession
+    )
+
+    async with async_session_maker() as session:
+        yield session
+        await session.rollback()
