@@ -32,4 +32,4 @@ class MeResponse(BaseModel):
     user_id: uuid.UUID
     first_name: str
     last_name: str
-    email: LowerEmail
+    email: EmailStr
