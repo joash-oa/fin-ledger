@@ -8,7 +8,7 @@ from alembic.runtime.migration import MigrationContext
 from sqlalchemy import make_url, text
 from sqlalchemy.ext.asyncio import create_async_engine
 
-import app.models  # noqa :F401
+import app.models  # noqa: F401
 from app.core.db import Base
 
 
