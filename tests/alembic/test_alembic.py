@@ -1,14 +1,14 @@
 import asyncio
 
 import pytest
+from alembic import command
 from alembic.autogenerate import compare_metadata
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 from sqlalchemy import make_url, text
 from sqlalchemy.ext.asyncio import create_async_engine
 
-import app.models  # noqa
-from alembic import command
+import app.models  # noqa :F401
 from app.core.db import Base
 
 

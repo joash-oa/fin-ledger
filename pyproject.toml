@@ -42,3 +42,6 @@ DEBUG="True"
 COOKIE_SECURE="True"
 SESSION_IDLE_TIMEOUT_SECONDS=1800
 SESSION_MAX_LIFETIME_SECONDS=86400
+
+[tool.ruff.lint.isort]
+known-third-party = ["alembic"]
