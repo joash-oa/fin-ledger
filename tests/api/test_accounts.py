@@ -18,14 +18,14 @@ from tests.factories import get_create_account_payload, get_update_account_paylo
 
 
 @pytest_asyncio.fixture()
-async def async_client(auth_service, account_service):
+async def unauthenticated_client(auth_service, account_service):
     app.dependency_overrides[get_auth_service] = lambda: auth_service
     app.dependency_overrides[get_account_service] = lambda: account_service
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test-user"
-    ) as async_client:
-        yield async_client
+    ) as unauthenticated_client:
+        yield unauthenticated_client
 
     app.dependency_overrides.clear()
 
@@ -295,9 +295,9 @@ async def test_patch_account_with_null_mapping(client, account_service):
 
 
 async def test_get_account_by_id_with_no_session_token(
-    async_client, auth_service, account_service
+    unauthenticated_client, auth_service, account_service
 ):
-    res = await async_client.get(f"/accounts/{TEST_ACCOUNT_ID}")
+    res = await unauthenticated_client.get(f"/accounts/{TEST_ACCOUNT_ID}")
 
     assert res.status_code == status.HTTP_401_UNAUTHORIZED
     auth_service.authenticate.assert_not_awaited()

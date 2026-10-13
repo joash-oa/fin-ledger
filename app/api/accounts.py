@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.api.deps import get_account_service, get_current_user
+from app.api.deps import CurrentUser, get_account_service
 from app.core.exceptions import AccountNotFoundException, DuplicateAccountException
 from app.schemas.accounts import (
     CreateAccountRequest,
@@ -13,10 +13,8 @@ from app.schemas.accounts import (
     PatchAccountRequest,
 )
 from app.services.account_service import AccountService
-from app.services.auth_service import AuthenticatedUser
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
-CurrentUser = Annotated[AuthenticatedUser, Depends(get_current_user)]
 
 
 @router.post(
@@ -89,4 +87,4 @@ async def update_account(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No account exists with this ID",
-        )
+        ) from None

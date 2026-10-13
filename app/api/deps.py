@@ -41,3 +41,6 @@ async def get_current_user(
         return user
     except InvalidSessionException:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED) from None
+
+
+CurrentUser = Annotated[AuthenticatedUser, Depends(get_current_user)]
