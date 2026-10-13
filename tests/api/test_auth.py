@@ -1,12 +1,15 @@
 import pytest
+import pytest_asyncio
 from fastapi import status
-from httpx import Response
+from httpx import ASGITransport, AsyncClient, Response
 
+from app.api.deps import get_auth_service
 from app.core.exceptions import (
     DuplicateEmailException,
     InvalidCredentialsException,
     UserNotFoundException,
 )
+from app.main import app
 from tests.constants import (
     TEST_EMAIL_ADDRESS,
     TEST_FIRST_NAME,
@@ -15,6 +18,18 @@ from tests.constants import (
     TEST_USER_ID,
 )
 from tests.factories import get_login_payload, get_register_payload
+
+
+@pytest_asyncio.fixture
+async def client(auth_service):
+    # API dependencies
+    app.dependency_overrides[get_auth_service] = lambda: auth_service
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as async_client:
+        yield async_client
+    app.dependency_overrides.clear()
 
 
 def assert_authenticated_response(res: Response, status_code: int):

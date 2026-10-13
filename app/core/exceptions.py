@@ -12,3 +12,11 @@ class InvalidSessionException(Exception):
 
 class UserNotFoundException(Exception):
     pass
+
+
+class DuplicateAccountException(Exception):
+    pass
+
+
+class AccountNotFoundException(Exception):
+    pass
