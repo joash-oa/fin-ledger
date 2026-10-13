@@ -107,7 +107,6 @@ def get_update_account_payload():
 
 
 def get_mock_account() -> Account:
-    mapping = get_update_account_payload()["mapping"]
     return Account(
         id=TEST_ACCOUNT_ID,
         name=TEST_ACCOUNT_NAME,
@@ -116,7 +115,7 @@ def get_mock_account() -> Account:
         institution=TEST_ACCOUNT_INSTITUTION,
         masked_number=TEST_MASKED_NUMBER,
         created_at=TEST_CREATED_AT,
-        mapping=mapping,
+        mapping=None,
     )
 
 
