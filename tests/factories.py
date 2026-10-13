@@ -2,12 +2,14 @@ from datetime import datetime
 from uuid import UUID
 
 from app.core.utils import get_password_hash, get_token_hash
-from app.models import AuthSession, User
+from app.models import Account, AuthSession, User
 from tests.constants import (
+    TEST_ACCOUNT_ID,
     TEST_ACCOUNT_INSTITUTION,
     TEST_ACCOUNT_NAME,
     TEST_ACCOUNT_TYPE,
     TEST_AMOUNT,
+    TEST_CREATED_AT,
     TEST_DATE_FORMAT,
     TEST_DESCRIPTION,
     TEST_EMAIL_ADDRESS,
@@ -101,4 +103,28 @@ def get_update_account_payload():
             "date_format": TEST_DATE_FORMAT,
             "row_order": TEST_ROW_ORDER,
         }
+    }
+
+
+def get_mock_account() -> Account:
+    mapping = get_update_account_payload()["mapping"]
+    return Account(
+        id=TEST_ACCOUNT_ID,
+        name=TEST_ACCOUNT_NAME,
+        user_id=TEST_USER_ID,
+        type=TEST_ACCOUNT_TYPE,
+        institution=TEST_ACCOUNT_INSTITUTION,
+        masked_number=TEST_MASKED_NUMBER,
+        created_at=TEST_CREATED_AT,
+        mapping=mapping,
+    )
+
+
+def get_create_account_data():
+    return {
+        "user_id": TEST_USER_ID,
+        "account_name": TEST_ACCOUNT_NAME,
+        "account_type": TEST_ACCOUNT_TYPE,
+        "masked_number": TEST_MASKED_NUMBER,
+        "institution": TEST_ACCOUNT_INSTITUTION,
     }

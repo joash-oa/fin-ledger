@@ -2,13 +2,14 @@ from unittest.mock import AsyncMock
 
 import pytest
 
+from app.daos.account_dao import AccountDao
 from app.daos.auth_session_dao import AuthSessionDao
 from app.daos.user_dao import UserDao
 from tests.constants import (
     TEST_CREATED_AT,
     TEST_LAST_ACTIVITY_AT,
 )
-from tests.factories import get_mock_user, make_auth_session
+from tests.factories import get_mock_account, get_mock_user, make_auth_session
 
 
 @pytest.fixture
@@ -27,3 +28,15 @@ def user_dao():
     mock_user_dao.create_user.return_value = get_mock_user()
     mock_user_dao.get_user_by_id.return_value = get_mock_user()
     return mock_user_dao
+
+
+@pytest.fixture
+def account_dao():
+    mock_account_dao = AsyncMock(spec=AccountDao)
+    test_account = get_mock_account()
+    mock_account_dao.create_account.return_value = test_account
+    mock_account_dao.get_account_by_id.return_value = test_account
+    mock_account_dao.list_accounts_by_user.return_value = [test_account]
+    mock_account_dao.update_mapping.return_value = True
+
+    return mock_account_dao
