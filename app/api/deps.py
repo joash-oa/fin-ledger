@@ -5,8 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db_session
 from app.core.exceptions import InvalidSessionException
+from app.daos.account_dao import AccountDao
 from app.daos.auth_session_dao import AuthSessionDao
 from app.daos.user_dao import UserDao
+from app.services.account_service import AccountService
 from app.services.auth_service import AuthenticatedUser, AuthService
 
 DBSession = Annotated[AsyncSession, Depends(get_db_session, scope="function")]
@@ -18,6 +20,13 @@ def get_auth_service(
     user_dao = UserDao(db_session)
     auth_session_dao = AuthSessionDao(db_session)
     return AuthService(user_dao, auth_session_dao)
+
+
+def get_account_service(
+    db_session: DBSession,
+) -> AccountService:
+    account_dao = AccountDao(db_session)
+    return AccountService(account_dao)
 
 
 async def get_current_user(

@@ -4,11 +4,22 @@ from uuid import UUID
 from app.core.utils import get_password_hash, get_token_hash
 from app.models import AuthSession, User
 from tests.constants import (
+    TEST_ACCOUNT_INSTITUTION,
+    TEST_ACCOUNT_NAME,
+    TEST_ACCOUNT_TYPE,
+    TEST_AMOUNT,
+    TEST_DATE_FORMAT,
+    TEST_DESCRIPTION,
     TEST_EMAIL_ADDRESS,
     TEST_FIRST_NAME,
     TEST_LAST_NAME,
+    TEST_MASKED_NUMBER,
     TEST_NOW,
     TEST_PASSWORD,
+    TEST_POSTED_AT,
+    TEST_RAW_TYPE,
+    TEST_ROW_ORDER,
+    TEST_RUNNING_BALANCE,
     TEST_SESSION_ID,
     TEST_SESSION_TOKEN,
     TEST_USER_ID,
@@ -67,4 +78,27 @@ def get_register_payload():
         "last_name": TEST_LAST_NAME,
         "email": TEST_EMAIL_ADDRESS,
         "password": TEST_PASSWORD,
+    }
+
+
+def get_create_account_payload():
+    return {
+        "account_name": TEST_ACCOUNT_NAME,
+        "account_type": TEST_ACCOUNT_TYPE,
+        "masked_number": TEST_MASKED_NUMBER,
+        "institution": TEST_ACCOUNT_INSTITUTION,
+    }
+
+
+def get_update_account_payload():
+    return {
+        "mapping": {
+            "posted_at": TEST_POSTED_AT,
+            "amount": TEST_AMOUNT,
+            "description": TEST_DESCRIPTION,
+            "running_balance": TEST_RUNNING_BALANCE,
+            "raw_type": TEST_RAW_TYPE,
+            "date_format": TEST_DATE_FORMAT,
+            "row_order": TEST_ROW_ORDER,
+        }
     }
