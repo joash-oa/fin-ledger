@@ -4,6 +4,7 @@ from uuid import UUID
 
 from app.core.exceptions import AccountNotFoundException
 from app.daos.account_dao import AccountDao
+from app.models import Account
 
 
 @dataclass
@@ -31,6 +32,18 @@ class AccountService:
         # Update when transactions service is implemented
         return None
 
+    async def _get_account_info(self, account: Account) -> AccountInfo:
+        balance = await self._get_account_balance(account_id=account.id)
+        return AccountInfo(
+            account_id=account.id,
+            account_name=account.name,
+            institution=account.institution,
+            account_type=account.type,
+            masked_number=account.masked_number,
+            mapping=account.mapping,
+            balance=balance,
+        )
+
     async def create_account(
         self,
         user_id: UUID,
@@ -52,42 +65,27 @@ class AccountService:
         account = await self.account_dao.get_account_by_id(
             user_id=user_id, account_id=account_id
         )
-        if not account:
+        if account is None:
             raise AccountNotFoundException
 
-        balance = await self._get_account_balance(account_id=account_id)
-        return AccountInfo(
-            account_id=account.id,
-            account_name=account.name,
-            institution=account.institution,
-            account_type=account.type,
-            masked_number=account.masked_number,
-            mapping=account.mapping,
-            balance=balance,
-        )
+        account_info = await self._get_account_info(account)
+        return account_info
 
     async def list_accounts(self, user_id: UUID) -> UserAccounts:
         accounts = await self.account_dao.list_accounts_by_user(user_id=user_id)
-        if not accounts:
-            return UserAccounts(accounts=[], net_balance=None)
 
         net_balance: int | None = None
         user_accounts = []
+
         for account in accounts:
-            balance = await self._get_account_balance(account_id=account.id)
-            user_accounts.append(
-                AccountInfo(
-                    account_id=account.id,
-                    account_name=account.name,
-                    institution=account.institution,
-                    account_type=account.type,
-                    masked_number=account.masked_number,
-                    mapping=account.mapping,
-                    balance=balance,
-                )
-            )
-            if balance:
-                net_balance += balance
+            account_info = await self._get_account_info(account)
+            user_accounts.append(account_info)
+
+            if account_info.balance is not None:
+                if net_balance is None:
+                    net_balance = account_info.balance
+                else:
+                    net_balance += account_info.balance
 
         return UserAccounts(accounts=user_accounts, net_balance=net_balance)
 
