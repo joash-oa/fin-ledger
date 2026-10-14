@@ -34,8 +34,8 @@ class AccountDao:
             await self.db_session.flush()
             return account
         except IntegrityError as ie:
-            cause = ie.orig.__cause__
-            if "ux_account" in str(cause):
+            constraint_name = ie.orig.__cause__.constraint_name
+            if constraint_name == "ux_account":
                 raise DuplicateAccountException
             else:
                 raise
@@ -52,7 +52,12 @@ class AccountDao:
         return result.scalar_one_or_none()
 
     async def list_accounts_by_user(self, user_id: UUID) -> list[Account]:
-        statement = select(Account).where(Account.user_id == user_id)
+        statement = (
+            select(Account)
+            .where(Account.user_id == user_id)
+            .order_by(Account.created_at)
+            .order_by(Account.id)
+        )
         result = await self.db_session.execute(statement)
         return list(result.scalars().all())
 
