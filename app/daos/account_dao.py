@@ -34,7 +34,9 @@ class AccountDao:
             await self.db_session.flush()
             return account
         except IntegrityError as ie:
-            constraint_name = ie.orig.__cause__.constraint_name
+            original_error = ie.orig
+            cause = getattr(original_error, "__cause__", None)
+            constraint_name = getattr(cause, "constraint_name", None)
             if constraint_name == "ux_account":
                 raise DuplicateAccountException
             else:
