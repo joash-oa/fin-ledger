@@ -308,6 +308,24 @@ async def test_update_mapping_replaces_old(created_account, db_session, persiste
     assert created_account.mapping == second_mapping
 
 
+async def test_update_mapping_with_same_mapping_twice(
+    created_account, db_session, persisted_user
+):
+    account_dao = AccountDao(db_session)
+    test_mapping = get_update_account_payload()["mapping"]
+
+    # Update mapping twice
+    await account_dao.update_mapping(
+        user_id=persisted_user.id, account_id=created_account.id, mapping=test_mapping
+    )
+    updated = await account_dao.update_mapping(
+        user_id=persisted_user.id, account_id=created_account.id, mapping=test_mapping
+    )
+    await db_session.refresh(created_account)
+
+    assert updated is True
+
+
 async def test_deleting_user_deletes_their_accounts(
     db_session, persisted_user, created_account
 ):
