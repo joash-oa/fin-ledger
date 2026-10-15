@@ -127,3 +127,21 @@ def get_create_account_data():
         "masked_number": TEST_MASKED_NUMBER,
         "institution": TEST_ACCOUNT_INSTITUTION,
     }
+
+
+def get_users_payloads():
+    first_user_payload = {
+        "first_name": "First",
+        "last_name": "Last",
+        "email": "first_last@email.com",
+        "password": "first-password-123",
+    }
+
+    second_user_payload = {
+        "first_name": "Second",
+        "last_name": "Last",
+        "email": "second_last@email.com",
+        "password": "second-password-123",
+    }
+
+    return [first_user_payload, second_user_payload]
