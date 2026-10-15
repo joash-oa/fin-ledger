@@ -82,7 +82,7 @@ async def test_create_account_with_invalid_type(client, account_service):
     res = await client.post("/accounts", json=payload)
 
     account_service.create_account.assert_not_awaited()
-    assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert res.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
 async def test_create_account_with_leading_zeros_masked_number(client, account_service):
@@ -105,7 +105,7 @@ async def test_create_account_with_whitespace_only_account_name(
 
     res = await client.post("/accounts", json=payload)
 
-    assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert res.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     account_service.create_account.assert_not_awaited()
 
 
@@ -115,7 +115,7 @@ async def test_create_account_with_whitespace_only_institution(client, account_s
 
     res = await client.post("/accounts", json=payload)
 
-    assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert res.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     account_service.create_account.assert_not_awaited()
 
 
@@ -150,7 +150,7 @@ async def test_create_account_with_invalid_masked_number(
 
     res = await client.post("/accounts", json=payload)
 
-    assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert res.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     account_service.create_account.assert_not_awaited()
 
 
@@ -232,7 +232,7 @@ async def test_patch_account_with_missing_field_mapping(client, account_service)
 
     res = await client.patch(f"/accounts/{TEST_ACCOUNT_ID}", json=payload)
 
-    assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert res.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     account_service.update_account_mapping.assert_not_awaited()
 
 
@@ -242,7 +242,7 @@ async def test_patch_account_with_extra_field_mapping(client, account_service):
 
     res = await client.patch(f"/accounts/{TEST_ACCOUNT_ID}", json=payload)
 
-    assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert res.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     account_service.update_account_mapping.assert_not_awaited()
 
 
@@ -252,7 +252,7 @@ async def test_patch_account_with_invalid_row_order(client, account_service):
 
     res = await client.patch(f"/accounts/{TEST_ACCOUNT_ID}", json=payload)
 
-    assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert res.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     account_service.update_account_mapping.assert_not_awaited()
 
 
@@ -290,7 +290,7 @@ async def test_patch_account_with_null_mapping(client, account_service):
 
     res = await client.patch(f"/accounts/{TEST_ACCOUNT_ID}", json=payload)
 
-    assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert res.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     account_service.update_account_mapping.assert_not_awaited()
 
 

@@ -1,8 +1,11 @@
 from typing import Any
 from uuid import UUID
 
+from sqlalchemy import select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import DuplicateAccountException
 from app.models import Account
 
 
@@ -17,14 +20,59 @@ class AccountDao:
         account_type: str,
         institution: str,
         masked_number: str,
-    ) -> Account: ...
+    ) -> Account:
+        account = Account(
+            user_id=user_id,
+            name=account_name,
+            type=account_type,
+            institution=institution,
+            masked_number=masked_number,
+        )
+        self.db_session.add(account)
+
+        try:
+            await self.db_session.flush()
+            return account
+        except IntegrityError as ie:
+            original_error = ie.orig
+            cause = getattr(original_error, "__cause__", None)
+            constraint_name = getattr(cause, "constraint_name", None)
+            if constraint_name == "ux_account":
+                raise DuplicateAccountException
+            else:
+                raise
 
     async def get_account_by_id(
         self, user_id: UUID, account_id: UUID
-    ) -> Account | None: ...
+    ) -> Account | None:
+        statement = (
+            select(Account)
+            .where(Account.user_id == user_id)
+            .where(Account.id == account_id)
+        )
+        result = await self.db_session.execute(statement)
+        return result.scalar_one_or_none()
 
-    async def list_accounts_by_user(self, user_id: UUID) -> list[Account]: ...
+    async def list_accounts_by_user(self, user_id: UUID) -> list[Account]:
+        statement = (
+            select(Account)
+            .where(Account.user_id == user_id)
+            .order_by(Account.created_at)
+            .order_by(Account.id)
+        )
+        result = await self.db_session.execute(statement)
+        return list(result.scalars().all())
 
     async def update_mapping(
         self, user_id: UUID, account_id: UUID, mapping: dict[str, Any]
-    ) -> bool: ...
+    ) -> bool:
+        statement = (
+            update(Account)
+            .where(Account.id == account_id)
+            .where(Account.user_id == user_id)
+            .values(mapping=mapping)
+        )
+
+        result = await self.db_session.execute(statement)
+        row_count = result.rowcount
+        return bool(row_count)
