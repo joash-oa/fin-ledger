@@ -155,7 +155,7 @@ def get_valid_mapping():
         description="Description",
         running_balance="Current balance",
         raw_type="Type",
-        date_format="YYYY-MM-DD",
+        date_format="YYYY MM DD",
         row_order="asc",
     )
 

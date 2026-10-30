@@ -40,6 +40,7 @@ class CsvFileParseException(Exception):
         self, message: str, error_code: ErrorCode, row: int | None, field: str | None
     ):
         super().__init__(message)
+        self.message = message
         self.error_code = error_code
         self.row = row
         self.field = field
