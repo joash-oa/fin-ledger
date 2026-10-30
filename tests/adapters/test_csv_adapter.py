@@ -122,8 +122,10 @@ def test_valid_date_conversion(date_str: str, date_format: str, expected_date: d
         ("2026-11-12", "MM DD YYYY"),
         ("2026-133", "DD MM YYYY"),
         ("2027.02.31", "YYYY MM DD"),
-        ("2026-04-31", "DD MM YYYY"),
+        ("2026-13-01", "YYYY MM DD"),
+        ("31-04-2026", "DD MM YYYY"),
         ("2026/03/00", "YYYY MM DD"),
+        ("03/12/26", "MM DD YYYY"),
         ("2026-03-12x", "YYYY MM DD"),
         ("abc", "YYYY MM DD"),
     ],
@@ -221,7 +223,7 @@ def test_missing_columns_error():
         (",-14.00,Café Grumpy,11986.00,ACH_DEBIT,Posted", "posted_at"),
         ("2026-09-02,-14.00,Café Grumpy,,ACH_DEBIT,Posted", "running_balance"),
         ("2026-09-02,,Café Grumpy,11986.00,ACH_DEBIT,Posted", "amount"),
-        ("2026-09-02,'  ',Café Grumpy,11986.00,ACH_DEBIT,Posted", "amount"),
+        ("2026-09-02,   ,Café Grumpy,11986.00,ACH_DEBIT,Posted", "amount"),
         ("2026-09-02,-14.00,Café Grumpy", "running_balance"),
     ],
 )
@@ -526,14 +528,16 @@ def test_parse_file_strips_field_whitespace():
 
     parsed_file = csv_adapter.parse(file_bytes=file_bytes, mapping=mapping)
     parsed_rows = parsed_file.rows
-    expected_rows = ParsedRow(
-        posted_at=date(2026, 9, 1),
-        amount=250000,
-        description="Payroll",
-        running_balance=1200000,
-        raw_type="ACH_CREDIT",
-        row=2,
-        flags=(),
+    expected_rows = (
+        ParsedRow(
+            posted_at=date(2026, 9, 1),
+            amount=250000,
+            description="Payroll",
+            running_balance=1200000,
+            raw_type="ACH_CREDIT",
+            row=2,
+            flags=(),
+        ),
     )
 
     assert expected_rows == parsed_rows
