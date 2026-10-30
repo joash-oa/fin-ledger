@@ -1,6 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
+from app.core.mapping import AccountMapping
 from app.core.utils import get_password_hash, get_token_hash
 from app.models import Account, AuthSession, User
 from tests.constants import (
@@ -145,3 +146,25 @@ def get_users_payloads():
     }
 
     return [first_user_payload, second_user_payload]
+
+
+def get_valid_mapping():
+    return AccountMapping(
+        posted_at="Date",
+        amount="Amount",
+        description="Description",
+        running_balance="Current balance",
+        raw_type="Type",
+        date_format="YYYY-MM-DD",
+        row_order="asc",
+    )
+
+
+def make_csv_file(
+    file_lines: list[str], bom: bool = False, encoding: str = "utf-8"
+) -> bytes:
+    text = "\n".join(file_lines) + "\n"
+    file_bytes = text.encode(encoding)
+    if bom:
+        file_bytes = b"\xef\xbb\xbf" + file_bytes
+    return file_bytes
