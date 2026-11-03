@@ -191,6 +191,20 @@ def test_empty_file_raises_no_rows_error():
     assert exc_info.value.field is None
 
 
+def test_blank_header_row_raises_no_rows_error():
+    mapping = get_valid_mapping()
+    csv_adapter = CsvAdapter()
+    lines = [",,,,,"]
+    file_bytes = make_csv_file(lines)
+
+    with pytest.raises(CsvFileParseException) as exc_info:
+        csv_adapter.parse(file_bytes=file_bytes, mapping=mapping)
+
+    assert exc_info.value.error_code == ErrorCode.NO_ROWS
+    assert exc_info.value.row is None
+    assert exc_info.value.field is None
+
+
 def test_file_with_header_and_blank_rows():
     mapping = get_valid_mapping()
     csv_adapter = CsvAdapter()
