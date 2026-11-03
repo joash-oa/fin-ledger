@@ -1,11 +1,19 @@
 import hashlib
+import typing
 from datetime import date
 from pathlib import Path
 
 import pytest
 
-from app.adapters.csv_adapter import CsvAdapter, ParsedRow, convert_amount, convert_date
+from app.adapters.csv_adapter import (
+    DATE_FORMAT_INDICES,
+    CsvAdapter,
+    ParsedRow,
+    convert_amount,
+    convert_date,
+)
 from app.core.exceptions import CsvFileParseException, ErrorCode
+from app.core.mapping import AccountMapping
 from tests.factories import get_valid_mapping, make_csv_file
 
 
@@ -129,6 +137,7 @@ def test_valid_date_conversion(date_str: str, date_format: str, expected_date: d
         ("03/12/26", "MM DD YYYY"),
         ("2026-03-12x", "YYYY MM DD"),
         ("abc", "YYYY MM DD"),
+        ("2026-10-11 12:00:00", "YYYY MM DD H M S"),
     ],
 )
 def test_invalid_date_conversion(date_str: str, date_format: str):
@@ -604,3 +613,55 @@ def test_bom_before_mapped_first_header_parses(expected_rows):
     bom_parsed_file = csv_adapter.parse(file_bytes=bom_file_bytes, mapping=mapping)
 
     assert expected_rows == bom_parsed_file.rows
+
+
+def test_long_row_extra_values_ignored():
+    mapping = get_valid_mapping()
+    csv_adapter = CsvAdapter()
+    lines = [
+        "Date,Amount,Description,Current balance,Type,Status",
+        "2026-09-01 , 2500.00 , Payroll , 12000.00 , ACH_CREDIT, Posted, EXTRA, MORE",
+    ]
+    file_bytes = make_csv_file(lines)
+    file_hash = hashlib.sha256(file_bytes).hexdigest()
+    expected_rows = (
+        ParsedRow(
+            posted_at=date(2026, 9, 1),
+            amount=250000,
+            description="Payroll",
+            running_balance=1200000,
+            raw_type="ACH_CREDIT",
+            row=2,
+            flags=(),
+        ),
+    )
+    parsed_file = csv_adapter.parse(file_bytes=file_bytes, mapping=mapping)
+    parsed_rows = parsed_file.rows
+
+    assert file_hash == parsed_file.file_hash
+    assert expected_rows == parsed_rows
+
+
+def test_missing_flag_column_header_error():
+    mapping = get_valid_mapping()
+    csv_adapter = CsvAdapter()
+    lines = [
+        "Date,Amount,Description,Current balance,Status",
+        "2026-09-01 , 2500.00 , Payroll , 12000.00 , ACH_CREDIT, Posted",
+    ]
+    file_bytes = make_csv_file(lines)
+
+    with pytest.raises(CsvFileParseException) as exc_info:
+        csv_adapter.parse(file_bytes=file_bytes, mapping=mapping)
+
+    assert exc_info.value.error_code == ErrorCode.MISSING_COLUMN
+    assert exc_info.value.row == 1
+    assert exc_info.value.field == "raw_type"
+
+
+def test_date_formats_match_mapping_literal():
+    valid_date_formats = typing.get_args(
+        AccountMapping.model_fields["date_format"].annotation
+    )
+
+    assert set(valid_date_formats) == set(DATE_FORMAT_INDICES.keys())

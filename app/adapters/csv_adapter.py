@@ -47,12 +47,12 @@ class ParsedFile:
 
 
 def convert_date(date_str: str, date_format: str) -> date:
+    if date_format not in DATE_FORMAT_INDICES:
+        raise ValueError(f"Invalid date format: {date_format!r}")
+
     date_vals = re.split(r"[^0-9]+", date_str)
     if len(date_vals) != 3:
         raise ValueError(f"Invalid date format: {date_str!r}")
-
-    if date_format not in DATE_FORMAT_INDICES:
-        raise KeyError(f"Invalid date format: {date_str!r}")
 
     year_index, month_index, day_index = DATE_FORMAT_INDICES[date_format]
     if (
@@ -94,7 +94,7 @@ class CsvAdapter:
             raise CsvFileParseException(
                 message="Invalid CSV format: Unsupported encoding",
                 error_code=ErrorCode.INVALID_ENCODING,
-            )
+            ) from None
 
     @staticmethod
     def _get_value_in_record(
@@ -129,7 +129,7 @@ class CsvAdapter:
                 error_code=error_code,
                 row=row_number,
                 field=field_name,
-            )
+            ) from None
 
         return converted_value
 
@@ -137,6 +137,12 @@ class CsvAdapter:
     def _parse_header(header: list[str], mapping: AccountMapping) -> dict[str, int]:
         mapping_dict = mapping.model_dump()
         parsed_header = {}
+        if all(not value for value in header):
+            raise CsvFileParseException(
+                message="No header row found in CSV file",
+                error_code=ErrorCode.NO_ROWS,
+            )
+
         for index, header_val in enumerate(header):
             header_val = header_val.strip()
             if header_val in parsed_header:
@@ -235,7 +241,7 @@ class CsvAdapter:
         column_indices = self._parse_header(header, mapping)
         parsed_rows = []
         for row_number, record in enumerate(csv_reader, start=2):
-            normalized_record = [record.strip() for record in record]
+            normalized_record = [record_value.strip() for record_value in record]
             if all(not value for value in normalized_record):
                 continue
 
@@ -251,7 +257,7 @@ class CsvAdapter:
             raise CsvFileParseException(
                 message="Invalid CSV format: Blank rows",
                 error_code=ErrorCode.NO_ROWS,
-            ) from None
+            )
         return parsed_rows
 
     @staticmethod
@@ -261,7 +267,7 @@ class CsvAdapter:
         for prev, current in itertools.pairwise(file_rows):
             if row_order == "asc" and current.posted_at < prev.posted_at:
                 raise CsvFileParseException(
-                    message=f"Dates are out of order for this file: Row {current.row} {current.posted_at} is later than Row {prev.row} {prev.posted_at}",
+                    message=f"Dates are out of order for this file: Row {current.row} {current.posted_at} is earlier than Row {prev.row} {prev.posted_at}",
                     error_code=ErrorCode.DATES_OUT_OF_ORDER,
                     row=current.row,
                     field="posted_at",
