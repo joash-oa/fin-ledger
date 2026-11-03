@@ -647,7 +647,7 @@ def test_missing_flag_column_header_error():
     csv_adapter = CsvAdapter()
     lines = [
         "Date,Amount,Description,Current balance,Status",
-        "2026-09-01 , 2500.00 , Payroll , 12000.00 , ACH_CREDIT, Posted",
+        "2026-09-01 , 2500.00 , Payroll , 12000.00, Posted",
     ]
     file_bytes = make_csv_file(lines)
 

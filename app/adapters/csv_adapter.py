@@ -137,11 +137,6 @@ class CsvAdapter:
     def _parse_header(header: list[str], mapping: AccountMapping) -> dict[str, int]:
         mapping_dict = mapping.model_dump()
         parsed_header = {}
-        if all(not value for value in header):
-            raise CsvFileParseException(
-                message="No header row found in CSV file",
-                error_code=ErrorCode.NO_ROWS,
-            )
 
         for index, header_val in enumerate(header):
             header_val = header_val.strip()
@@ -232,7 +227,7 @@ class CsvAdapter:
 
         csv_reader = csv.reader(text_stream)
         header = next(csv_reader, None)
-        if not header:
+        if not header or all(not value.strip() for value in header):
             raise CsvFileParseException(
                 message="No header row found in CSV file",
                 error_code=ErrorCode.NO_ROWS,
