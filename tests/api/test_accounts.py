@@ -256,6 +256,16 @@ async def test_patch_account_with_invalid_row_order(client, account_service):
     account_service.update_account_mapping.assert_not_awaited()
 
 
+async def test_patch_account_with_invalid_date_format(client, account_service):
+    payload = get_update_account_payload()
+    payload["mapping"]["date_format"] = "Invalid Date Format"
+
+    res = await client.patch(f"/accounts/{TEST_ACCOUNT_ID}", json=payload)
+
+    assert res.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+    account_service.update_account_mapping.assert_not_awaited()
+
+
 async def test_patch_account_with_unknown_account(client, account_service):
     account_service.update_account_mapping.side_effect = AccountNotFoundException
     payload = get_update_account_payload()

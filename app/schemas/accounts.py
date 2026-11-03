@@ -1,21 +1,9 @@
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
+from pydantic import BaseModel, Field, field_validator
 
-NonEmptyStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
-
-
-class AccountMapping(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    posted_at: NonEmptyStr
-    amount: NonEmptyStr
-    description: NonEmptyStr
-    running_balance: NonEmptyStr
-    raw_type: NonEmptyStr
-    date_format: NonEmptyStr
-    row_order: Literal["asc", "desc"]
+from app.core.mapping import AccountMapping, NonEmptyStr
 
 
 class AccountInfoResponse(BaseModel):

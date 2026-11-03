@@ -1,0 +1,4 @@
+Date,Amount,Description,Current balance,Type,Status
+2026-09-01,2500.00,Payroll,12000.00,ACH_CREDIT,Posted
+2026-09-02,-500.00,Con Edison,11500.00,ACH_DEBIT,Posted
+2026-09-05,-85.42,Whole Foods Market,11414.58,DEBIT_CARD,Posted
