@@ -88,6 +88,7 @@ def test_valid_amount_conversion(amount_str: str, expected_cents: int):
         "abc",
         "1.2.3",
         "-",
+        "١٢",
     ],
 )
 def test_invalid_amount_conversion(amount_str: str):
@@ -279,6 +280,23 @@ def test_unparseable_amount_error():
     assert exc_info.value.error_code == ErrorCode.UNPARSEABLE_AMOUNT
     assert exc_info.value.row == 2
     assert exc_info.value.field == "amount"
+
+
+def test_unparseable_running_balance_error():
+    mapping = get_valid_mapping()
+    csv_adapter = CsvAdapter()
+    lines = [
+        "Date,Amount,Description,Current balance,Type,Status",
+        "2026-09-01,2500.00,Payroll,$12000.00,ACH_CREDIT,Posted",
+    ]
+    file_bytes = make_csv_file(lines)
+
+    with pytest.raises(CsvFileParseException) as exc_info:
+        csv_adapter.parse(file_bytes=file_bytes, mapping=mapping)
+
+    assert exc_info.value.error_code == ErrorCode.UNPARSEABLE_AMOUNT
+    assert exc_info.value.row == 2
+    assert exc_info.value.field == "running_balance"
 
 
 def test_dates_out_of_order_error_with_row_order_asc():
@@ -522,7 +540,7 @@ def test_parse_file_strips_field_whitespace():
     csv_adapter = CsvAdapter()
     lines = [
         "Date,Amount,Description,Current balance,Type,Status",
-        "2026-09-01 , 2500.00 , Payroll , 12000.00 , ACH_CREDIT",
+        "2026-09-01 , 2500.00 , Payroll , 12000.00 , ACH_CREDIT, Posted",
     ]
     file_bytes = make_csv_file(lines)
 
